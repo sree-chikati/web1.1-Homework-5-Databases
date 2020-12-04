@@ -43,7 +43,7 @@ def create():
             'name': request.form.get('plant_name'),
             'variety': request.form.get('variety'),
             'photo_url': request.form.get('photo'),
-            'date_planted': request.form.get('date_planted')
+            'date_harvested': request.form.get('date_harvested')
         }
         # TODO: Make an `insert_one` database call to insert the object into the
         # database's `plants` collection, and get its inserted id. Pass the 
