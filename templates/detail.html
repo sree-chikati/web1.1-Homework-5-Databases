@@ -13,11 +13,7 @@
 
 <main>
         <h1>{{ plant['name'] }}</h1>
-
         <img src="{{ plant['photo_url'] }}">
-
-        
-
         <section id="info">
             <h3>Info</h3>
 
@@ -59,7 +55,7 @@
             {% if harvests %}
             <ul>
                 {% for harvest in harvests %}
-                <li>{{ harvest['date'] }}: You harvested {{ harvest['quantity'] }}</li>
+                <li>{{harvest['date']}} : Harvested {{ harvest['quantity'] }}</li>
                 {% endfor %}
             </ul>
             {% endif %}
