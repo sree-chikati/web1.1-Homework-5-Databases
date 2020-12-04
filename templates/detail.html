@@ -1,16 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
-{#
-    TODO: Much of the data on this page is hard-coded! Replace the name, photo,
-    variety, date planted, & id with the plant object's actual data, using what
-    is passed from the route's context. 
-    
-    HINT: For example, you can use `plant.name` or `plant['name']` for the
-    plant's name.
-#}
-
 <main>
         <h1>{{ plant['name'] }}</h1>
         <img src="{{ plant['photo_url'] }}">
@@ -46,10 +36,6 @@
             </fieldset>
         </form>
 
-        {#
-            TODO: Create a for loop here to loop over all harvests (passed in 
-            from the route's context) and display their information.
-        #}
         <section id="harvest-history">
             <h3>Harvest History</h3>
             {% if harvests %}
@@ -61,7 +47,7 @@
             {% endif %}
         </section>
 
-        <form action="/delete/123456" method='POST' id="delete-form" onsubmit="return confirm_delete()">
+        <form action="/delete/{{plant['_id']}}" method='POST' id="delete-form" onsubmit="return confirm_delete()">
             <input type="submit" class="nav" onclick="delete_modal()" value="Delete Plant">
         </form>
 </main>
