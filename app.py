@@ -1,15 +1,26 @@
 from flask import Flask, request, redirect, render_template, url_for
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
 ############################################################
 # SETUP
 ############################################################
-
 app = Flask(__name__)
 
-app.config["MONGO_URI"] = "mongodb+srv://dbSree:Astrophile_1319@startercluster.uhnfk.mongodb.net/<dbname>?retryWrites=true&w=majority"
-mongo = PyMongo(app)
+load_dotenv()
+MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
+MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
+MONGODB_DBNAME = 'mydb'
+
+
+
+client = MongoClient(f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@startercluster.uhnfk.mongodb.net/{MONGODB_DBNAME}?retryWrites=true&w=majority&authSource=admin")
+db = client[MONGODB_DBNAME]
+plant_collection = db.plants
+harvests_collection = db.harvests
 
 ############################################################
 # ROUTES
@@ -18,7 +29,7 @@ mongo = PyMongo(app)
 @app.route('/')
 def plants_list():
     """Display the plants list page."""
-    plants_data = mongo.db.plants.find({})
+    plants_data = db.plants.find({})
     context = {
         'plants': plants_data,
     }
@@ -40,7 +51,7 @@ def create():
             'date_harvested': request.form.get('date_harvested')
         }
 
-        insert_new_plant = mongo.db.plants.insert_one(new_plant)
+        insert_new_plant = db.plants.insert_one(new_plant)
         return redirect(url_for('detail', plant_id=insert_new_plant.inserted_id))
 
     else:
@@ -49,8 +60,8 @@ def create():
 @app.route('/plant/<plant_id>')
 def detail(plant_id):
     """Display the plant detail page & process data from the harvest form."""
-    plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
-    harvests = mongo.db.plants.find({'plant_id': plant_id})
+    plant_to_show = db.plants.find_one({'_id': ObjectId(plant_id)})
+    harvests = db.plants.find({'plant_id': plant_id})
 
     context = {
         'plant' : plant_to_show,
@@ -69,7 +80,7 @@ def harvest(plant_id):
         'plant_id': plant_id
     }
 
-    insert_new_harvest = mongo.db.harvests.insert_one(new_harvest)
+    insert_new_harvest = db.harvests.insert_one(new_harvest)
 
     return redirect(url_for('detail', plant_id=plant_id))
 
@@ -77,7 +88,7 @@ def harvest(plant_id):
 def edit(plant_id):
     """Shows the edit page and accepts a POST request with edited data."""
     if request.method == 'POST':
-        plant_update = mongo.db.plants.update_one({'_id': ObjectId(plant_id)},
+        plant_update = db.plants.update_one({'_id': ObjectId(plant_id)},
         {
             '$set': {
                 'name': request.form.get('plant_name'),
@@ -88,7 +99,7 @@ def edit(plant_id):
         
         return redirect(url_for('detail', plant_id=plant_id))
     else:
-        plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+        plant_to_show = db.plants.find_one({'_id': ObjectId(plant_id)})
 
         context = {
             'plant': plant_to_show
@@ -98,8 +109,8 @@ def edit(plant_id):
 
 @app.route('/delete/<plant_id>', methods=['POST'])
 def delete(plant_id):
-    delete_plant = mongo.db.plants.delete_one({'_id': ObjectId(plant_id)})
-    delete_harvest = mongo.db.harvests.delete_many({'plant_id': plant_id})
+    delete_plant = db.plants.delete_one({'_id': ObjectId(plant_id)})
+    delete_harvest = db.harvests.delete_many({'plant_id': plant_id})
 
     return redirect(url_for('plants_list'))
 
